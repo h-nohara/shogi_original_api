@@ -1,0 +1,89 @@
+<HTML lang="ja">
+
+    <head>
+        <script type="text/javascript" src="/static/jquery-3.3.1.min.js"></script>
+    </head>
+
+    <body>
+
+        <style>
+            body {padding: 10vh 10vw;}
+        </style>
+
+        <div id="input_form">
+            <p>保存名を入力してください</p>
+            <input type="text">
+        </div>
+
+        <style>
+            #input_form input {
+                width: 25vw;
+                height: 5vh;
+            }
+        </style>
+
+        <button id="save_button">保存する</button>
+
+        <style>
+            #save_button {
+                margin: 2vh 0;
+            }
+        </style>
+
+        <div id="files">
+
+        </div>
+
+
+
+    </body>
+
+    <script>
+
+        // 読み込み時
+
+        $(document).ready(function(){
+
+            // サーバーから、保存されているpickleファイルのリストをもらう
+            $.ajax({
+                url : "/get_pickles",
+                type : "GET",
+            })
+            .done(function(pickles_str){
+
+                if (pickles_str != ""){
+                    PICKLE_FILES = pickles_str.split(",");
+                    for (pickle_name of PICKLE_FILES){
+                        let paragraph = $('<p></p>');
+                        paragraph.html(pickle_name);
+                        $("#files").append(paragraph);
+                    }
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown){
+                console.log("oh my pickles");
+            })
+        });
+
+    </script>
+
+    <script>
+        // saveボタンが押された時
+        $(document).on("click", "#save_button", function(){
+            let input_name = $("#save_button").val();
+            if (PICKLE_FILES.indexOf(input_name) >= 0){
+                window.alert("その名前はすでに使われています");
+            }
+            else if (input_name.slice(input_name.length - 7) != ".pickle"){
+                window.alert(".pickle形式にしてください");
+            }
+            else{
+                // python側で保存
+                let without_ext = input_name.slice(0, input_name.length-7);
+                window.opener.save_history(without_ext);
+            }
+        })
+    </script>
+
+
+</HTML>

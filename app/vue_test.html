@@ -1,0 +1,39 @@
+<html>
+    <header>
+        <script type="text/javascript" src="jquery-3.3.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    </header>
+
+    <body>
+        <div id="main_contents">
+            <template v-for="text in texts">
+                <div><button>{{text}}</button></div>
+            </template>
+        </div>
+        <button id="please">ああああああ</button>
+        <button id="add">加える</button>
+    </body>
+
+
+    <script>
+
+        var vv = new Vue({
+            el: '#main_contents',
+            data: {
+                texts : ["hoge", "aa"]
+            }
+        })
+
+        $(document).on("click", "#please", function(){
+            console.log(vv.texts);
+        })
+
+        $(document).on("click", "#add", function(){
+            let text_list = vv.texts;
+            text_list.push("kore");
+            Vue.set(vv.someObject, 'texts', text_list);
+        })
+
+    </script>
+
+</html>

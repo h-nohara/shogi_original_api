@@ -1,0 +1,412 @@
+<html>
+<HTML lang="ja">
+
+<head>
+    <script type="text/javascript" src="/static/jquery-3.3.1.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script> -->
+    <script type="text/javascript" src="/static/util.js"></script>
+    <script type="text/javascript" src="/static/piece.js"></script>
+    <script type="text/javascript" src="/static/move.js"></script>
+    <script type="text/javascript" src="/static/board.js"></script>
+    <script type="text/javascript" src="/static/ShogiBoard.js"></script>
+    <script type="text/javascript" src="/static/history.js"></script>
+    <script type="text/javascript" src="/static/message.js"></script>
+    <script type="text/javascript" src="/static/load_save.js"></script>
+    <!-- <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> -->
+    <script src="/static/d3.min.js" charset="utf-8"></script>
+    <!-- <script type="text/javascript" src="/static/ActionHistory.js"></script> -->
+</head>
+
+<body>
+
+    <script>
+        // ロードされた時
+        window.onload = function(){
+            SBoard = new ShogiBoard();
+            History = new HistoryHandler();
+
+            timer1 = setInterval(open_or_close_sub_sc, 100);
+        }
+
+    </script>
+
+
+
+    <style>
+        body {
+            display: grid;
+            grid-gap: 1vw;
+            grid-template-columns: 40vw 10vw 30vw 15vw;
+        }
+
+    </style>
+
+
+
+    <div id="main_sub_board">
+        <div id="sub_board_gote" class="sub_board">
+        </div>
+
+        <div id="main_board" class="grid">
+        </div>
+
+        <div id="sub_board_sente" class="sub_board">
+        </div>
+
+    </div>
+
+    <style>
+        #main_sub_board{
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+
+
+
+    <style>
+        #main_board {
+            width: 100%;
+            height: 70vh;
+            background-color: aqua;
+            margin: 0;
+            padding: 0;
+        }
+        #main_board.OneSquare {height: 100%; width: 100%; padding: 0; margin: 0;}
+        /* #main_board button {height: 100%; width: 100%; padding: 0; margin: 0;} */
+        .grid {
+            display: grid;
+            grid-gap: 0px;
+            grid-template-rows: repeat(9, 11%);
+            grid-template-columns: repeat(9, 11%);
+        }
+    </style>
+
+    <style>
+        .sub_board{
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 12%;
+            background-color: brown;
+
+            display: grid;
+            grid-gap: 0;
+            grid-template-columns: repeat(7, 13%);
+        }
+
+        .PieceInHand {
+            margin: 0;
+            padding: 0;
+            height: 70%;
+        }
+    </style>
+
+
+    <div id="history_scroll">
+        <template v-for="action in action_history">
+            <OneAction-component></OneAction-component>
+        </template>
+    </div>
+
+    <style>
+        #history_scroll{
+            background-color: antiquewhite;
+            margin: 0;
+            padding: 0;
+            overflow: scroll;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .OneAction {
+            background-color : white;
+            color: black;
+            font-size: 120%;
+            width: 100%;
+            height: 10vh;
+        }
+
+    </style>
+
+
+    <div id="Right">
+
+        <div id="AddDelAction">
+            <div><button id="AddAction">追加</button></div>
+            <div><button id="UpdateAction">更新</button></div>
+            <div><button id="DelAction">削除</button></div>
+        </div>
+
+        
+
+        <div id="TextAction" class="action_kind">
+            <div id="TextAction_title" class="action_header_text">
+                <p>テキスト</p>
+            </div>
+
+            <input type="text" id="TextAction_text_box" class="action_contents">
+            
+        </div>
+
+        <div id="LightUpAction" class="action_kind">
+            <div id="LightUpAction_title" class="action_header">
+                <div class="action_title"><p>ライトアップ</p></div>
+                <div><button id="adding_LightUp" class="one_action_add_button">＋</button></div>
+                <div><button id="reflesh_LightUp" class="one_action_reflesh_button">ー</button></div>
+            </div>
+            <div id="LightUpAction_buttons" class="action_contents">
+                <p></p>
+            </div>
+        </div>
+
+        <div id="MarkAction" class="action_kind">
+            <div id="MarkAction_title" class="action_header">
+                <div class="action_title"><p>マーク</p></div>
+                <div><button id="adding_Mark" class="one_action_add_button">＋</button></div>
+                <div><button id="reflesh_Mark" class="one_action_reflesh_button">ー</button></div>
+            </div>
+            <div id="MarkAction_buttons" class="action_contents">
+                <p></p>
+            </div>
+        </div>
+
+        <div id="FlyToAction" class="action_kind">
+            <button id="add_FlyTo">Fly To</button>
+        </div>
+
+        <div><button id="finish">画像生成</button></div>
+        <div><button id="save">保存</button></div>
+        <div><button id="load">読み込み</button></div>
+
+
+        <div id="sample_sub_scenarios"></div>
+
+
+
+        <style>
+        #finish {width: 50%; height: 5vh;}
+        #save {width: 50%; height: 5vh;}
+        #load {width: 50%; height: 5vh;}
+        </style>
+
+    </div>
+
+    <!--Creates the popup body-->
+    <div class="popup-overlay">
+        <!--Creates the popup content-->
+        <div class="popup-content">
+            <div id="sub_scenarios"></div>
+        </div>
+
+        <style>
+            #sub_scenarios{
+                background-color: antiquewhite;
+                margin: 0;
+                padding: 0;
+                overflow: scroll;
+                height: 100vh;
+                width: 100%;
+            }
+    
+            #sub_scenarios button {
+                background-color : white;
+                color: black;
+                font-size: 120%;
+                width: 100%;
+                height: 10vh;
+            }
+    
+        </style>
+    </div>
+
+
+    <script>
+        // 画像生成
+        $(document).on("click", "#finish", function(){
+            console.log(History.history);
+            console.log(JSON.stringify(History.history));
+            $.ajax({
+                url : "/make_images_from_history",
+                type : "POST",
+                data: JSON.stringify(History.history),
+            })
+            .done(function(no_data){
+                console.log("pushed to python make image");
+            })
+            .fail(function(jqXHR, textStatus, errorThrown){
+                console.log("oh my image");
+            })
+        })
+
+    </script>
+
+    <style>
+        #Right {
+            background-color: darkkhaki;
+
+            display: grid;
+            grid-gap: 0;
+            grid-template-rows: repeat(5, 15vh);
+            /* grid-template-rows: 15vh, 15vh, 15vh, 15vh, 5vh, 3vh; */
+        }
+    </style>
+
+    <style>
+        #AddDelAction {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+
+            display: grid;
+            grid-gap: 0;
+            grid-template-columns: 40% 40% 20%;
+        }
+
+        #AddAction{
+            margin: 0;
+            padding: 0;
+            background-color: red;
+            height: 100%;
+            width: 100%;
+        }
+
+        #UpdateAction{
+            margin: 0;
+            padding: 0;
+            background-color: orange;
+            height: 100%;
+            width: 100%;
+        }
+
+        #DelAction{
+            margin: 0;
+            padding: 0;
+            background-color: blue;
+            height: 100%;
+            width: 100%;
+        }
+
+        .action_kind {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: azure;
+        }
+
+        .action_header {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 30%;
+            border: solid 0.02px;
+
+            display: grid;
+            grid-gap: 0;
+            grid-template-columns: 70% 20% 10%;
+        }
+
+        button.one_action_add_button{
+            margin: 0;
+            padding: 0;
+            background-color: red;
+            height: 100%;
+            width: 100%;
+        }
+
+        button.one_action_reflesh_button{
+            margin: 0;
+            padding: 0;
+            background-color: blue;
+            height: 100%;
+            width: 100%;
+        }
+
+
+        .action_contents {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 70%;
+        }
+
+        #TextAction_text_box input{
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 90%;
+        }
+
+        #add_FlyTo {
+            width: 100%; height: 70%;
+        }
+    </style>
+
+
+
+
+
+
+    <style>
+    
+    .popup-overlay{
+        /*Hides pop-up when there is no "active" class*/
+        visibility:hidden;
+        /* position:absolute; */
+        background:#ffffff;
+        border:3px solid #666666;
+        /* width:50%; */
+        /* height:50%; */
+        /* left:25%; */
+    }
+    .popup-overlay.active{
+        /*displays pop-up when "active" class is present*/
+        visibility:visible;
+        text-align:center;
+    }
+    
+    .popup-content {
+        /*Hides pop-up content when there is no "active" class */
+        visibility:hidden;
+    }
+    
+    .popup-content.active {
+        /*Shows pop-up content when "active" class is present */
+        visibility:visible;
+    }
+    
+    /* button{
+        display:inline-block;
+        vertical-align:middle;
+        border-radius:30px;
+        margin:.20rem;
+        font-size: 1rem;
+        color:#666666;
+        background:	#ffffff;
+        border:1px solid #666666;
+    } */
+
+    </style>
+
+    <script>
+
+    function open_pull(){
+        $(".popup-overlay, .popup-content").addClass("active");
+    };
+
+    function close_pull(){
+        $(".popup-overlay, .popup-content").removeClass("active");
+    };
+    </script>
+
+
+
+</body>
+
+</html>

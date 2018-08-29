@@ -1,0 +1,78 @@
+<HTML lang="ja">
+
+    <head>
+        <script type="text/javascript" src="/static/jquery-3.3.1.min.js"></script>
+    </head>
+
+    <body>
+
+        <style>
+            body {padding: 10vh 10vw;}
+        </style>
+
+        <p>読み込むファイルを選んでください</p>
+
+
+        <div id="files">
+
+        </div>
+
+
+
+    </body>
+
+    <script>
+
+        // 読み込み時
+
+        $(document).ready(function(){
+
+            // サーバーから、保存されているpickleファイルのリストをもらう
+            $.ajax({
+                url : "/get_pickles",
+                type : "GET",
+            })
+
+            .done(function(pickles_str){
+
+                if (pickles_str != ""){
+                    PICKLE_FILES = pickles_str.split(",");
+                    for (pickle_name of PICKLE_FILES){
+                        let btn = $('<div class="button_autor"><button class="file_name">' + pickle_name + '</button></div>');
+                        $("#files").append(btn);
+                    }
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown){
+                console.log("oh my pickles");
+            })
+        });
+
+
+    </script>
+
+    <style>
+        .button_autor {
+            margin: 1vh 1vw;
+            }
+        .file_name {
+            width: 20vw;
+            height: 6vh;
+        }
+    </style>
+
+    <script>
+        // ファイル名のボタンが押された時
+        $(document).on("click", ".file_name", function(){
+            let the_name = $(this).text();
+            let ok = window.confirm(the_name + " を読み込みます");
+            if (ok){
+                // 読み込んでボード等の画面を更新
+                let without_ext = the_name.slice(0, the_name.length-7);
+                window.opener.load_history(without_ext);
+            }
+        })
+    </script>
+
+
+</HTML>
