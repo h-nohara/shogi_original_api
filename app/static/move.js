@@ -195,6 +195,7 @@ function get_legal_moves(Board, loc=null){
         }
 
 
+
         // 手番を交代
         board_copy.is_sente = !board_copy.is_sente;
 
@@ -245,6 +246,7 @@ function get_all_natural_moves(Board, loc=null){
             }
         }
 
+
         // 手駒
 
         let natural_moves_put = [];
@@ -256,13 +258,14 @@ function get_all_natural_moves(Board, loc=null){
             var pieces_in_hand = Board.all_pieces["hand"]["gote"];
         }
 
+
         for (piece_name of Object.keys(pieces_in_hand)){
             if (pieces_in_hand[piece_name] > 0){
                 let piece = new Piece(piece_name, is_sente);
-                natural_moves_put = natural_moves_put.concat(get_natural_moves_put(piece, Board));
+                let natural_moves_put_this_piece = get_natural_moves_put(piece, Board);
+                natural_moves_put = natural_moves_put.concat(natural_moves_put_this_piece);
             }
         }
-
         
         // 移動と打ち手を合わせる
         var all_natural_moves = natural_moves_move.concat(natural_moves_put);
@@ -665,7 +668,10 @@ function get_natural_moves_move(Piece, Board){
 
             // 成ることができれば加える
             if (is_land_of_enemy(dest, is_sente)){
-                natural_moves.push(loc + dest + "+");
+                // 王以外の成っていない駒は成ることができる
+                if (PieceName_Hand.indexOf(Piece.name) >= 0){
+                    natural_moves.push(loc + dest + "+");
+                }
             }
         }
     }
@@ -752,11 +758,11 @@ function get_natural_moves_put(Piece, Board){
                 let is_nifu = false;
                 
                 let col = loc[0];
-                for (let row_num=1; row_num=10; row_num++){
+                for (let row_num=1; row_num<10; row_num++){
                     let the_piece = Board.all_pieces["main"][col + String(row_num)];
                     if (the_piece != null){
                         if ((the_piece.name == "FU") && (the_piece.is_sente == is_sente)){
-                            is_nifu = True;
+                            is_nifu = true;
                             break;
                         }
                     }

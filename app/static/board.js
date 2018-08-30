@@ -123,10 +123,12 @@ class Board{
                     exit;
                 }
 
+
                 // もし成り駒を取るときは名前を元に戻す
                 if (PieceName_Nari.indexOf(piece_there.name) >= 0){
                     piece_there.name = PieceName_after2before[piece_there.name];
                 }
+
 
                 // 持ち駒に加える
                 if (this.is_sente){
@@ -141,11 +143,13 @@ class Board{
             // 位置を移動
             this.all_pieces["main"][loc_from] = null;
             this.all_pieces["main"][loc_to] = piece;
+
         }
 
 
         // 手番を交代
         this.is_sente = !this.is_sente;
+
         // legal_movesを出しておく
         this.legal_moves = get_legal_moves(deepcopy_Board(this));
 
@@ -179,7 +183,17 @@ function deepcopy_Board(board){
 
 function deepcopy_all_pieces(all_pieces){
     
-    let main_copy = $.extend(true, {}, all_pieces["main"]);
+    let main_copy = {};
+    for (let key of Object.keys(all_pieces["main"])){
+        let the_piece = all_pieces["main"][key];
+        if (the_piece == null){
+            main_copy[key] = null;
+        }
+        else{
+            main_copy[key] = deepcopy_Piece(the_piece);
+        }
+    }
+    // let main_copy = $.extend(true, {}, all_pieces["main"]);
     let sente_copy = $.extend(true, {}, all_pieces["hand"]["sente"]);
     let gote_copy = $.extend(true, {}, all_pieces["hand"]["gote"]);
     let hand_copy = {"sente" : sente_copy, "gote" : gote_copy};

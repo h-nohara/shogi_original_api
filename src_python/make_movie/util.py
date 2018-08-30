@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os, sys, copy
-from piece import Piece
+from .piece import Piece
 
 PieceName_all = ["OU", "HI", "KA", "KI", "GI", "KE", "KY", "FU", "RY", "UM", "NG", "NK", "NY", "TO"]
 PieceName_notNari = ["OU", "HI", "KA", "KI", "GI", "KE", "KY", "FU", ]

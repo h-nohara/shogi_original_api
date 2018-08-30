@@ -3,7 +3,7 @@
 
 import os, sys, copy
 
-from piece import Piece
+from .piece import Piece
 import time
 
 import multiprocessing

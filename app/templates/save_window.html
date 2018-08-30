@@ -11,7 +11,7 @@
         </style>
 
         <div id="input_form">
-            <p>保存名を入力してください</p>
+            <p>拡張子を除いた保存名を入力してください</p>
             <input type="text">
         </div>
 
@@ -70,17 +70,23 @@
     <script>
         // saveボタンが押された時
         $(document).on("click", "#save_button", function(){
-            let input_name = $("#save_button").val();
-            if (PICKLE_FILES.indexOf(input_name) >= 0){
-                window.alert("その名前はすでに使われています");
+
+            let input_name = $("#input_form input").val();
+
+            if (input_name.indexOf(".") >= 0){
+                window.alert("拡張子は含めないでください");
             }
-            else if (input_name.slice(input_name.length - 7) != ".pickle"){
-                window.alert(".pickle形式にしてください");
+            else if (PICKLE_FILES.indexOf(input_name + ".pickle") >= 0){
+                if (window.confirm("上書きしますか？")){
+                    // python側で保存
+                    window.opener.save_history(input_name);
+                    open('about:blank', '_self').close(); 
+                }
             }
             else{
                 // python側で保存
-                let without_ext = input_name.slice(0, input_name.length-7);
-                window.opener.save_history(without_ext);
+                window.opener.save_history(input_name);
+                open('about:blank', '_self').close();
             }
         })
     </script>

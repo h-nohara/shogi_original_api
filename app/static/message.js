@@ -82,20 +82,104 @@ $(document).on("click", "#add_FlyTo", function(){
 // アクションを削除
 $(document).on("click", "#DelAction", function(){
 
-    // 見ているものを更新
     let order = History.watching_action["order_in_parent"];
-    History.watching_action = History.watching_action["parent"][order-1];
-    History.watching_action["is_watching"] = true;
 
-    // 見ているもの以降を削除
-    History.watching_action["parent"].splice(order);
+    if (order == 0){
+
+        // initialは削除できない
+        if (Object.keys(History.watching_action).indexOf("move") >= 0){
+            if (History.watching_action["move"] == "initial"){
+                window.alert("最初は削除できません");
+                exit;
+            }
+        }
+
+        // サブシナリオの最初を削除したら
+
+        // 見ているもの以降を削除
+        History.watching_action["parent"].splice(order);
+
+        History.history = handle_emp_scenario(History.history);
+
+       // 画面更新
+       History.update_view();
+       show_message_contents(History.watching_action);
+       SBoard.Board = deepcopy_Board(History.watching_action["board_state"]);
+       SBoard.draw_main_board();
+
+    }
+
+    else{
+        // 見ているものを更新
+        History.watching_action = History.watching_action["parent"][order-1];
+        History.watching_action["is_watching"] = true;
+
+        // 見ているもの以降を削除
+        History.watching_action["parent"].splice(order);
+        
+        // 画面更新
+        History.update_view();
+        show_message_contents(History.watching_action);
+        SBoard.Board = deepcopy_Board(History.watching_action["board_state"]);
+        SBoard.draw_main_board();
+    }
     
-    // 画面更新
-    History.update_view();
-    show_message_contents(History.watching_action);
-    SBoard.Board = deepcopy_Board(History.watching_action["board_state"]);
-    SBoard.draw_main_board();
 })
+
+
+function handle_emp_scenario(history){
+
+    for (let i=0; i<history.length; i++){
+        let action = history[i];
+
+        // シナリオアクションを見つけたら
+        if (Object.keys(action).indexOf("scenarios") >= 0){
+            let emp_sc_number = null;
+            let n_sub_sc = action["scenarios"].length;
+
+            for (let j=0; j<n_sub_sc; j++){
+                sub_sc = action["scenarios"][j];
+
+                // 空のシナリオだったら
+                if (sub_sc.length == 0){
+                    emp_sc_number = j;
+                    break;
+                }
+                // 空じゃなかったら、そのシナリオの中身を同じようにチェック
+                else{
+                    action["scenarios"][j] = handle_emp_scenario(sub_sc);
+                }
+            }
+            // 空のシナリオを見つけていたら
+            if (emp_sc_number != null){
+                if (n_sub_sc >= 3){
+                    action["scenarios"].splice(emp_sc_number, 1);
+                }
+                else{
+                    let survive_sub_sc_number = Math.abs(action["selected_scenario"] - 1);  // 現在見ているのと別の方のシナリオ
+                    if (survive_sub_sc_number > 1){
+                        window.alert("koara");
+                        exit;
+                    }
+                    let tail_actions = action["scenarios"][survive_sub_sc_number];
+                    for (let tail_action of tail_actions){
+                        tail_action["parent"] = history;
+                    }
+
+                    history.splice(-1);  // ブランチアクションを削除（親の最後)
+                    history = history.concat(tail_actions); // 確認　見ていない方のサブシナリオを親の最後に加える
+
+                    History.watching_action = history[i-1];
+                    History.watching_action["is_watching"] = true;
+                }
+            }
+        }
+    }
+
+    return history;
+}
+
+
 
 
 // それぞれのアクションを足すボタンを押した時

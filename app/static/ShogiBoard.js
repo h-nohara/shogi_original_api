@@ -86,7 +86,12 @@ class ShogiBoard {
         for (let key of Object.keys(this.Board.all_pieces["main"])){
             let piece = this.Board.all_pieces["main"][key];
             if (piece != null){
-                $("#"+key).text(PieceName_normal2kanji[piece.name]);
+                if (piece.is_sente){
+                    $("#"+key).text(PieceName_normal2kanji[piece.name]);
+                }
+                else{
+                    $("#"+key).text("v" + PieceName_normal2kanji[piece.name]);
+                }
             }
             else{
                 $("#"+key).text("");

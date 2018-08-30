@@ -68,8 +68,9 @@
             let ok = window.confirm(the_name + " を読み込みます");
             if (ok){
                 // 読み込んでボード等の画面を更新
-                let without_ext = the_name.slice(0, the_name.length-7);
+                let without_ext = the_name.split(".")[0];
                 window.opener.load_history(without_ext);
+                open('about:blank', '_self').close();
             }
         })
     </script>

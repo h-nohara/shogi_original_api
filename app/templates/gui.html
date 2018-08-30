@@ -233,7 +233,7 @@
             $.ajax({
                 url : "/make_images_from_history",
                 type : "POST",
-                data: JSON.stringify(History.history),
+                data: JSON.stringify({"data" : History.history}),
             })
             .done(function(no_data){
                 console.log("pushed to python make image");

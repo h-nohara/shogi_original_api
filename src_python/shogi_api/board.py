@@ -3,9 +3,9 @@
 
 import os, sys, copy
 
-from move import get_legal_moves
-from util import *
-from piece import Piece
+from .move import get_legal_moves
+from .util import *
+from .piece import Piece
                 
 
 

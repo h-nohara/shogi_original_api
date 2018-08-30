@@ -183,6 +183,11 @@ class HistoryHandler{
         // 新たなブランチを作成する　：　親の最新でないアクションを見ている時にmoveアクションが追加されたら
         if ((Object.keys(action).indexOf("move") >= 0) && (History.watching_action["order_in_parent"] != History.watching_action["parent"].length - 1)){
 
+            this.make_branch(action);
+        }
+
+        // サブシナリオを追加する
+        else if (Object.keys(this.watching_action).indexOf("scenarios") >= 0){
             this.add_branch(action);
         }
 
@@ -206,7 +211,7 @@ class HistoryHandler{
 
     }
 
-    add_branch(action){
+    make_branch(action){
 
         let order_in_parent = this.watching_action["order_in_parent"];
         let after_watching_action = this.watching_action["parent"].slice(order_in_parent+1);
@@ -228,6 +233,15 @@ class HistoryHandler{
         this.watching_action["parent"].splice(order_in_parent+1, this.watching_action["parent"].length-(order_in_parent+1));
         this.watching_action["parent"].push(new_scenario_action);  // 作成したシナリオアクションを追加
 
+    }
+
+    add_branch(action){
+
+        // もしすでにブランチが存在していたら、そこに加える
+
+        let new_sc = [action];
+        this.watching_action["scenarios"].push(new_sc);
+        this.watching_action["selected_scenario"] = this.watching_action["scenarios"].length - 1;
     }
 
 
