@@ -79,15 +79,16 @@ def modify_one_action(action):
 
     '''
     jsonでデータを受け取った時に、成りを表す"+"が空文字になってしなうのを修正
+    "move"と"legal_moves"
     '''
 
     if "move" in action.keys():
         if len(action["move"]) == 5:
             action["move"] = action["move"][:4] + "+"
 
-    for i, move in enumerate(action["board_state"].legal_moves):
+    for i, move in enumerate(action["board_state"]["legal_moves"]):
         if (len(move) == 5) and (move[-1] != "+"):
-            action["board_state"].legal_moves[i] = move[:4] + "+"
+            action["board_state"]["legal_moves"][i] = move[:4] + "+"
 
     return action
 
