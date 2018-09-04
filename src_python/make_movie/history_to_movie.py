@@ -1,14 +1,22 @@
 #!/user/bin/env python 
 # -*- coding: utf-8 -*-
 
-import os, sys, copy
+import os, sys, copy, shutil
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
 from .plot_board import Plot
-from image_handlers.make_WordImage import make_WordImage
-from image_handlers.overlaid_image import overlaid_handler
+from .util import get_abspath
+
+image_handlers_PATH = get_abspath("image_handlers")
+sys.path.append(image_handlers_PATH)
+from make_WordImage import make_WordImage
+from overlaid_image import overlaid_handler
+# from image_handlers.make_WordImage import make_WordImage
+# from image_handlers.overlaid_image import overlaid_handler
+
+from .images_to_movie import images_to_movie
 
 
 '''
@@ -95,7 +103,7 @@ def action_to_image(action, save_name):
         draw_boad(board=board, light_up_locs=light_up_locs, mark_locs=mark_locs, save_name=save_name)
 
         if "text" in message.keys():
-            word_image_path = os.path.join(os.path.dirn(save_name), "img.png")
+            word_image_path = os.path.join(os.path.dirname(save_name), "word.png")
             draw_text(message, save_name, word_image_path)
 
 
@@ -119,14 +127,59 @@ def history_to_images(history, recorder):
 
         if "scenarios" not in action.keys():
             save_name = recorder.next()
+
+            # initiialの時
+            if "move" in action.keys():
+                if action["move"] == "initial":
+                    draw_boad(action["board_state"], save_name)
+                    continue
+
             action_to_image(action, save_name)
 
         else:
 
+            board_before_branch = action["board_state"]
+
             for mini_sc in action["scenarios"]:
-                save_name = recorder.next()
-                action_to_image(action, save_name)  # 分岐の直前
+
+                save_name = recorder.next(True)
+                draw_boad(board_before_branch, save_name)  # 分岐の直前
                 history_to_images(mini_sc, recorder)  # 分岐後
+
+
+def history_to_movies(history, save_dir_img, save_dir_movie):
+
+    recorder = ImageNameRecorder(save_dir_img)
+    history_to_images(history, recorder)
+
+    # [0, 12, 20, 最後]　のような形式
+    cut_head_numbers = [0]
+    for fname in recorder.cut_heads:
+        number = int(os.path.basename(fname).split(".")[0].split("_")[-1])
+        cut_head_numbers.append(number)
+    cut_head_numbers.append(recorder.counter)
+
+    chunk_imges_dir = os.path.join(save_dir_img, "temporary_chunks")
+    if os.path.exists(chunk_imges_dir):
+        shutil.rmtree(chunk_imges_dir)
+
+    for i in range(len(cut_head_numbers) - 1):
+
+        head = cut_head_numbers[i]
+        after_tail = cut_head_numbers[i+1]
+
+        os.makedirs(chunk_imges_dir)
+
+        # 今回の動画用の画像を新しいフォルダにコピーする
+        for j, num in enumerate(range(head, after_tail)):
+            img_to_copy = os.path.join(save_dir_img, recorder.base_temp_name.format(num))
+            shutil.copy(img_to_copy, os.path.join(chunk_imges_dir, "img_{0:03d}.png".format(j)))
+
+        img_path_temp = os.path.join(chunk_imges_dir, "img_%03d.png")
+        result_name = os.path.join(save_dir_movie, "movie_{0:03d}.mp4".format(i))
+        images_to_movie(load_dir=chunk_imges_dir, img_path_temp=img_path_temp, result_name=result_name)
+
+        shutil.rmtree(chunk_imges_dir)
 
 
 
@@ -135,6 +188,7 @@ class ImageNameRecorder:
     def __init__(self, save_dir):
 
         self.save_dir = save_dir
+        self.base_temp_name = "img_{0:03d}.png"
 
         self.counter = 0
         self.cut_heads = []
@@ -142,42 +196,10 @@ class ImageNameRecorder:
     
     def next(self, is_cut_head=False):
 
-        img_path = os.path.join(self.save_dir, "img_{0:03d}".format(self.counter))
+        img_path = os.path.join(self.save_dir, self.base_temp_name.format(self.counter))
         self.counter += 1
         
         if is_cut_head:
             self.cut_heads.append(img_path)
 
         return img_path
-
-
-
-
-# def draw_all(self):
-        
-#     if self.parent_action is None:
-#         raise ValueError("set self.parent_action")
-
-#     # 現在の棋譜をコピーしてくる
-#     self.board_copy = copy.deepcopy(self.parent_action.parent_scenario.board)
-
-#     # 最新の盤面と背景を保存
-#     if self.light_up_locs or self.mark_locs:
-
-#         if self.light_up_locs:
-#             light_up_locs = self.light_up_locs["locs"]
-#         else:
-#             light_up_locs = None
-
-#         if self.mark_locs:
-#             mark_locs = self.mark_locs["locs"]
-#         else:
-#             mark_locs = None
-
-#         self.draw_boad(light_up_locs=light_up_locs, mark_locs=mark_locs)
-#     else:
-#         self.draw_boad()
-    
-#     # 保存した画像にテキストを加えて保存
-#     if self.text:
-#         self.draw_text()

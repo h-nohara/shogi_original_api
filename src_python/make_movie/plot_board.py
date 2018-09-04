@@ -19,105 +19,6 @@ IMAGE_DIR = os.path.join(my_dir_path, IMAGE_DIR_BASE)
 EFFECT_IMAGE_DIR = os.path.join(my_dir_path, EFFECT_IMAGE_DIR_BASE)
 
 
-csa_to_code = {
-    'OU': 1, 'HI': 2, 'KA': 3, 'KI': 4, 'GI': 5,
-    'KE': 6, 'KY': 7, 'FU': 8, 'RY': 22, 'UM': 23,
-    'NG': 25, 'NK': 26, 'NY': 27, 'TO': 28
-}
-
-
-shogiapi_to_code = {
-    "P" : csa_to_code["FU"], # 歩
-    "L" : csa_to_code["KY"], # 香
-    "N" : csa_to_code["KE"], # 桂
-    "S" : csa_to_code["GI"],# 銀
-    "G" : csa_to_code["KI"], # 金
-    "B" : csa_to_code["KA"], # 角
-    "R" : csa_to_code["HI"],# 飛車
-    "K" : csa_to_code["OU"], # 玉
-    
-    "+R" : csa_to_code["RY"], # 龍
-    "+B" : csa_to_code["UM"], # 馬
-    "+S" : csa_to_code["NG"],  # 成銀
-    "+N" : csa_to_code["NK"],  # 成桂
-    "+L" : csa_to_code["NY"],  # 成香
-    "+P" : csa_to_code["TO"] # と
-}
-
-shogicode_to_code = {
-    1 : csa_to_code["FU"], # 歩
-    2 : csa_to_code["KY"], # 香
-    3 : csa_to_code["KE"], # 桂
-    4 : csa_to_code["GI"],# 銀
-    5 : csa_to_code["KI"], # 金
-    6 : csa_to_code["KA"], # 角
-    7 : csa_to_code["HI"],# 飛車
-    8 : csa_to_code["OU"], # 玉
-}
-
-num2alpha = {
-    1:"a", 2:"b", 3:"c", 4:"d", 5:"e", 6:"f", 7:"g", 8:"h", 9:"i"
-}
-
-PieceName_Util2Csa = {
-    "FU" : "P", # 歩
-    "KY" : "L", # 香
-    "KE" : "N", # 桂
-    "GI" : "S",# 銀
-    "KI" : "G", # 金
-    "KA" : "B", # 角
-    "HI" : "R",# 飛車
-    "OU" : "K", # 玉
-    
-    "RY" : "+R", # 龍
-    "UM" : "+B", # 馬
-    "NG" : "+S",  # 成銀
-    "NK" : "+N",  # 成桂
-    "NY" : "+L",  # 成香
-    "TO" : "+P" # と
-}
-
-def numnum2csa(move):
-    '''
-    move(str) : "7776", "7733+", "KA55"
-
-    >>> numnum2csa("7776+")  # 7六成り
-    '7g7f+'
-    >>> numnum2csa(HI55)  # 5五飛打ち
-    'R*5e'
-    '''
-    
-    if not ((len(move) == 4) or (len(move) == 5)):
-        raise ValueError("not correct arg")
-    
-    loc_before = move[:2]
-    loc_after = move[2:4]
-    
-    try:
-        int(loc_before)
-        loc_before_csa = loc_before_csa = loc_before[0] + num2alpha[int(loc_before[1])]
-    except:
-        loc_before_csa = PieceName_Util2Csa[loc_before] + "*"
-        
-    
-    try:
-        int(loc_after)
-        loc_after_csa = loc_after[0] + num2alpha[int(loc_after[1])]
-    except:
-        raise ValueError("the format is not correct")
-
-    
-    
-    loc_csa = loc_before_csa + loc_after_csa
-        
-    if len(move) == 5:
-        assert move[-1] == "+"
-        loc_csa = loc_csa + "+"
-        
-    return loc_csa
-
-
-
 
 class Plot:
     
@@ -160,15 +61,15 @@ class Plot:
                 row_num += 1
             col_num = 9 - (i%9)
 
-            piece_obj = self.board.all_pieces["main"][str(col_num) + str(row_num)]
+            piece_obj = self.board["all_pieces"]["main"][str(col_num) + str(row_num)]
 
             if piece_obj is None:
                 continue
             else:
-                piece_str = piece_obj.name
+                piece_str = piece_obj["name"]
 
                 # 先手後手判定（小文字なら後手
-                if row_num > 5:
+                if piece_obj["is_sente"] is True:
                     is_gote = False
                 else:
                     is_gote = True
@@ -225,7 +126,7 @@ class Plot:
             else:
                 is_gote = True
             
-            pieces_in_hand = self.board.all_pieces["hand"][sente_or_gote]
+            pieces_in_hand = self.board["all_pieces"]["hand"][sente_or_gote]
             
             for piece_name_normal in pieces_in_hand.keys():
 
