@@ -4,6 +4,7 @@
 import os, sys, copy
 
 from .piece import Piece
+from .util import *
 import time
 
 import multiprocessing
@@ -144,7 +145,7 @@ def get_legal_moves(Board, loc=None):
         board_copy.all_pieces["main"][move[:2]] = None
         new_piece = Piece(name=original_piece.name, is_sente=original_piece.is_sente)
         new_piece.loc = move[2:4]
-        board_copy.all_pieces["main"][move[2:4]] = new_piece
+        board_copy.all_pieces["main"][move[2:4]] = copy.deepcopy(new_piece)
 
         if new_piece.name == "OU":
             loc_of_OU_now = new_piece.loc
@@ -195,7 +196,7 @@ def get_all_natural_moves(Board, loc=None):
 
         for piece_name in pieces_in_hand.keys():
             if pieces_in_hand[piece_name] > 0:
-                piece = Piece(name=piece_name, is_sente=is_sente)
+                piece = copy.deepcopy(Piece(name=piece_name, is_sente=is_sente))
                 natural_moves_put += get_natural_moves_put(piece, Board)
 
         
@@ -516,7 +517,8 @@ def get_natural_moves_move(Piece, Board):
 
             # 成ることができれば加える
             if is_land_of_enemy(dest, is_sente):
-                natural_moves.append(loc + dest + "+")
+                if Piece.name in PieceName_Hand:
+                    natural_moves.append(loc + dest + "+")
                 
 
     return natural_moves
