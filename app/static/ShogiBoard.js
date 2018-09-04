@@ -294,9 +294,12 @@ class ShogiBoard {
         this.init_state_now();
         // 背景を元に戻す
         $(".OneSquare").css("background-color", this.default_color);
+
+
+        let move_str = get_move_str(move, this.Board.all_pieces["main"][destination_loc[0]+destination_loc[1]].name);
         
         // ヒストリーに追加
-        let action = {"move" : move, "board_state" : deepcopy_Board(this.Board)};
+        let action = {"move" : move, "board_state" : deepcopy_Board(this.Board), "move_str" : move_str};
 
         console.log("before add_action");
         console.log(History.history);

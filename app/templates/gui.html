@@ -138,6 +138,7 @@
 
         <div id="AddDelAction">
             <div><button id="AddAction">追加</button></div>
+            <div><button id="AddActionBefore">手前に<br>追加</button></div>
             <div><button id="UpdateAction">更新</button></div>
             <div><button id="DelAction">削除</button></div>
         </div>
@@ -179,9 +180,11 @@
             <button id="add_FlyTo">Fly To</button>
         </div>
 
-        <div><button id="finish">画像生成</button></div>
-        <div><button id="save">保存</button></div>
-        <div><button id="load">読み込み</button></div>
+        <div id="load_save_make">
+            <div><button id="load">読み込み</button></div>
+            <div><button id="save">保存</button></div>
+            <div><button id="finish">画像生成</button></div>
+        </div>
 
 
         <div id="sample_sub_scenarios"></div>
@@ -196,7 +199,10 @@
 
     </div>
 
-    <!--Creates the popup body-->
+
+    
+    <!-- サブシナリオの表示/非表示 -->
+
     <div class="popup-overlay">
         <!--Creates the popup content-->
         <div class="popup-content">
@@ -225,25 +231,6 @@
     </div>
 
 
-    <script>
-        // 画像生成
-        $(document).on("click", "#finish", function(){
-            console.log(History.history);
-            console.log(JSON.stringify(History.history));
-            $.ajax({
-                url : "/make_images_from_history",
-                type : "POST",
-                data: JSON.stringify({"data" : History.history}),
-            })
-            .done(function(no_data){
-                console.log("pushed to python make image");
-            })
-            .fail(function(jqXHR, textStatus, errorThrown){
-                console.log("oh my image");
-            })
-        })
-
-    </script>
 
     <style>
         #Right {
@@ -265,13 +252,21 @@
 
             display: grid;
             grid-gap: 0;
-            grid-template-columns: 40% 40% 20%;
+            grid-template-columns: 30% 20% 30% 20%;
         }
 
         #AddAction{
             margin: 0;
             padding: 0;
             background-color: red;
+            height: 100%;
+            width: 100%;
+        }
+
+        #AddActionBefore{
+            margin: 0;
+            padding: 0;
+            background-color: lightcoral;
             height: 100%;
             width: 100%;
         }
@@ -291,6 +286,9 @@
             height: 100%;
             width: 100%;
         }
+
+
+        /* ============================ */
 
         .action_kind {
             margin: 0;
@@ -346,6 +344,47 @@
         #add_FlyTo {
             width: 100%; height: 70%;
         }
+
+
+
+        /* ========================= */
+
+        #load_save_make {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+
+            display: grid;
+            grid-gap: 0;
+            grid-template-columns: 33.3% 33.3% 33.3%;
+        }
+
+        #load{
+            margin: 0;
+            padding: 0;
+            background-color: orange;
+            height: 100%;
+            width: 100%;
+        }
+
+        #save{
+            margin: 0;
+            padding: 0;
+            background-color: orange;
+            height: 100%;
+            width: 100%;
+        }
+
+        #finish{
+            margin: 0;
+            padding: 0;
+            background-color: red;
+            height: 100%;
+            width: 100%;
+        }
+
+
     </style>
 
 

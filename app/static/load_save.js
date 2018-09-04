@@ -34,7 +34,7 @@ function load_history(without_ext){
             // boardを最新に
             SBoard.Board = History.watching_action["board_state"];
             SBoard.draw_main_board();
-            
+
         })
         .fail(function(jqXHR, textStatus, errorThrown){
             console.log("failed load");
@@ -67,6 +67,35 @@ function save_history(without_ext){
             console.log("failed save");
         });
 }
+
+
+
+
+// 動画生成
+$(document).on("click", "#finish", function(){
+
+    console.log("start make movie");
+
+    let new_history = [];
+    let history_copy = copy_history_without_parent(History.history, new_history);
+
+    // コピーした時にオリジナルhistoryのparentが削除されてしまったので、再設定
+    set_parent(History.history);
+
+    $.ajax({
+        url : "/make_movie",
+        type : "POST",
+        data: JSON.stringify({"history" : history_copy}),
+    })
+    .done(function(no_data){
+        console.log("pushed to python make image");
+        window.alert("動画を生成しました");
+    })
+    .fail(function(jqXHR, textStatus, errorThrown){
+        console.log("oh my image");
+    })
+})
+
 
 
 

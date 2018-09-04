@@ -59,39 +59,30 @@ history_after_branch = {
 // 参照しているのが親のi番目だったとすると、親のi番目に{"scenarios":}を加え、中の値は新しいactionだけ含まれるシナリオと、元のi番目以降全て
 
 
-function add_action(action){
 
-    // まず、historyに追加する
-
-    // もし新たな分岐が必要ない場合
-    if (! need_new_branch){
-        this.watching_action["parent"].splice(this.watching_action["order_in_parent"]+1, 0, action);
-    }
-
-    else{
-        let order_in_parent = this.watching_action["order_in_parent"];
-        let parent = this.watching_action["parent"];
-        // 新しいシナリオアクション
-        let new_scenario_action = {
-            "scenarios" : [
-                [this.watching_action.slice(order_in_parent+1, parent.length-1)], // 今参照しているアクションより後のhistory
-                [action]
-            ],
-            "parent" : this.watching_action["parent"],
-            "order_in_parent" : order_in_parent + 1
-        }
-        this.watching_action["parent"] = parent.slice(0, order_in_parent+ 1)  // 参照していたアクション以前のhistory
-        this.watching_action["parent"].push(new_scenario_action);  // 作成したシナリオアクションを追加
-    }
-
-    update_d3();
-}
+////////////////////////////////
+// historyの一連の流れ
+// 
+//　何らかのアクションがなされた際は、
 
 
-
+////////////////////////////////
 // watching_action, watching_dom, 背景色について
+////////////////////////////////
 
 // ・アクションに"is_watching"キーをセット＋trueなら描画時に色を青に
 // ・クリック時とアクション追加時：
 //     元のアクション："is_watching"をfalseに＋背景色を色に戻す
 //     クリックされたアクション：History.watching_action, History.watching_domをこれに上書き＋背景を青に（クリック時はdomを直接変更、追加時は"is_waching"で描画時に青に）
+
+
+////////////////////////////////
+// load, saveについて
+////////////////////////////////
+
+// action["parent"]は再帰参照になっているので、
+// サーバに渡す際は["parent"]を削除
+// サーバから読み込む際は["parent"]を設定し直し
+
+// サーバに渡すと文字列中の"+"が抜けてしまうので、対策をしている
+

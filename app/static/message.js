@@ -29,11 +29,17 @@ $(document).on("click", "#AddAction", function(){
 
 $(document).on("click", "#UpdateAction", function(){
 
+    let action = History.watching_action;
+
+    // 現在参照しているのがメッセージアクションかチェック
+    if (Object.keys(action).indexOf("message") < 0){
+        window.alert("メッセージアクションにのみ適用できます");
+        exit;
+    }
+
     let text = $("#TextAction_text_box").val();
     let LightUp_pos_str = $("#" + "LightUpAction_buttons p").text();
     let Mark_pos_str = $("#" + "MarkAction_buttons p").text();
-
-    let action = History.watching_action;
 
     if ((text != null) && (text != "")){
         action["message"]["text"] = text;

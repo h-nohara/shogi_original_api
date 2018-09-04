@@ -14,6 +14,10 @@ from pandas import DataFrame, Series
 import re
 import json
 
+from src_python.make_movie.history_to_movie import history_to_movies
+
+
+
 # import shogi
 # from util import get_piece_from_board, get_pieces_in_hand, locs_normal, loc_usi2normal, loc_normal2usi, PieceNames_normal_NotNari, PieceName_normal2kanji
 
@@ -22,8 +26,8 @@ import json
 
 
 PICKLE_DIR = "./data/pickles/"
-IMAGE_DIR = "./data/images/"
-MOVIE_DIR = "./"
+TEMPORAL_IMAGE_DIR = "./data/temporary_images/"
+RESULT_MOVIE_DIR = "./data/result_movie"
 
 
 
@@ -142,20 +146,24 @@ def load_history(without_ext):
 
 
 # HistoryをJSから受け取り、それを元に画像を生成する
-@app.route("/make_images_from_history", methods=["POST"])
-def make_images_from_history():
+@app.route("/make_movie", methods=["POST"])
+def make_movie():
 
     print("="*10)
     history = decode_to_dict(request)["history"]
     history = modify(history)
                 
-    global IMAGE_DIR
-    if os.path.exists(IMAGE_DIR):
-        shutil.rmtree(IMAGE_DIR)
-    os.makedirs(IMAGE_DIR)
+    global TEMPORAL_IMAGE_DIR
+    global RESULT_MOVIE_DIR
 
-    history_to_images(history, BOARD_HISTORY, save_dir)
-    images_to_movie(save_dir)
+    if os.path.exists(TEMPORAL_IMAGE_DIR):
+        shutil.rmtree(TEMPORAL_IMAGE_DIR)
+    os.makedirs(TEMPORAL_IMAGE_DIR)
+
+    if not os.path.exists(RESULT_MOVIE_DIR):
+        os.makedirs(RESULT_MOVIE_DIR)
+
+    history_to_movies(history, TEMPORAL_IMAGE_DIR, RESULT_MOVIE_DIR)
 
     return "hoge"
 

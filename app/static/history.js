@@ -21,7 +21,7 @@ function update_d3(dataset){
     .text(function(action){
         let keys = Object.keys(action);
         if (keys.indexOf("move") >= 0){
-            return action["move"];
+            return action["move_str"];
         }
         else if (keys.indexOf("message") >= 0){
             return "message";
@@ -155,6 +155,7 @@ class HistoryHandler{
 
         let initial_action = {
             "move" : "initial",
+            "move_str" : "initial",
             "parent" : this.history,
             "order_in_parent" : 0,
             "board_state" : deepcopy_Board(SBoard.Board),
@@ -201,6 +202,32 @@ class HistoryHandler{
                 this.watching_action["parent"].splice(this.watching_action["order_in_parent"]+1, 0, action);
             }
         }
+
+        // 見ているものを更新
+        this.watching_action = action;
+        action["is_watching"] = true;
+        
+        this.update_view();
+        show_message_contents(action);
+
+    }
+
+    add_action_before(action){
+
+        // 手前にアクションを追加する
+
+        // 今はメッセージアクションだけ
+        if (Object.keys(action).indexOf("message") < 0){
+            console.log("okasiine");
+            exit;
+        }
+
+        // 以前見ていたもの
+        $(History.watching_dom).css("background-color", "white");
+        this.watching_action["is_watching"] = false;
+
+        // historyに追加
+        this.watching_action["parent"].splice(this.watching_action["order_in_parent"], 0, action);
 
         // 見ているものを更新
         this.watching_action = action;

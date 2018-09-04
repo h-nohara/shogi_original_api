@@ -112,3 +112,27 @@ function generate_initial_loc_piece_dict(){
     return loc_piece_dict
 
 }
+
+
+function get_move_str(move, piece_name){
+
+    // get_move_str("8822+", "KA")  : "２二角成"
+    // get_move_str("55", "HI") : "５五飛打"
+
+
+    let move_str = move[2] + number2kanji[Number(move[3])] + PieceName_normal2kanji[piece_name];
+
+
+    // 打ち手だったら
+    if (PieceName_Hand.indexOf(move[0] + move[1]) >= 0){
+        move_str = move_str + "打"
+    }
+
+    else{
+        if (move[move.length-1] == "+"){
+            move_str = move_str[0] + move_str[1] + PieceName_normal2kanji[PieceName_after2before[piece_name]] + "成";
+        }
+    }
+
+    return move_str
+}
