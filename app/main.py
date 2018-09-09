@@ -149,7 +149,7 @@ def load_history(without_ext):
 @app.route("/make_movie", methods=["POST"])
 def make_movie():
 
-    print("="*10)
+    print("start make movie")
     history = decode_to_dict(request)["history"]
     history = modify(history)
                 
