@@ -33,7 +33,7 @@ def draw_boad(board, save_name, light_up_locs=False, mark_locs=False):
 
     light_up_locs(list(tuple)) : 背景に色をつける位置
 
-    >>> self.draw_board(light_up_locs=[(5,5), (3,4)], mark_locs=[])
+    >>> self.draw_board(light_up_locs=["55", "34"], mark_locs=[])
     '''
     
     board_plot = Plot(board)
