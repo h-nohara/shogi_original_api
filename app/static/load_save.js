@@ -86,6 +86,7 @@ $(document).on("click", "#finish", function(){
         url : "/make_movie",
         type : "POST",
         data: JSON.stringify({"history" : history_copy}),
+        timeout: 1000 * 600
     })
     .done(function(no_data){
         console.log("pushed to python make image");

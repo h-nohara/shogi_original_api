@@ -2,6 +2,8 @@
 
 $(document).on("click", "#AddAction", function(){
 
+    SBoard.init_state_now();
+
     let text = $("#TextAction_text_box").val();
     let LightUp_pos_str = $("#" + "LightUpAction_buttons p").text();
     let Mark_pos_str = $("#" + "MarkAction_buttons p").text();
@@ -88,6 +90,8 @@ $(document).on("click", "#add_FlyTo", function(){
 // アクションを削除
 $(document).on("click", "#DelAction", function(){
 
+    SBoard.init_state_now();
+
     let order = History.watching_action["order_in_parent"];
 
     if (order == 0){
@@ -134,6 +138,8 @@ $(document).on("click", "#DelAction", function(){
 
 
 function handle_emp_scenario(history){
+
+    // ブランチを削除した時（ブランチの最初のアクションを削除した時）に、historyを編集
 
     for (let i=0; i<history.length; i++){
         let action = history[i];
@@ -188,21 +194,23 @@ function handle_emp_scenario(history){
 
 
 
-// それぞれのアクションを足すボタンを押した時
+// メッセージエフェクトを足すボタンを押した時
 $(document).on("click", ".one_action_add_button", function(){
     SBoard.now_is_adding_action = !SBoard.now_is_adding_action;
     if (SBoard.now_is_adding_action){
         $(".OneSquare").css("background-color", "gold");
+        show_effects(false);
         let adding_action_kind = this.id.split("_")[1];
         SBoard.now_is_adding_kind = adding_action_kind;
     }
     else{
-        $(".OneSquare").css("background-color", SBoard.default_color);
+        // $(".OneSquare").css("background-color", SBoard.default_color);
+        show_effects();
     }
 })
 
 
-// それぞれのアクションを消すボタンを押した時
+// メッセージエフェクトを消すボタンを押した時
 $(document).on("click", ".one_action_reflesh_button", function(){
     let adding_action_kind = this.id.split("_")[1]; // "LightUp" or "Mark"
     $("#" + adding_action_kind + "Action_buttons" + " p").text("");
