@@ -57,6 +57,9 @@ function update_d3(dataset){
     // ボタンがクリックされたら
     .on("click", function(action){
 
+        // 将棋盤の状態を元に戻す
+        SBoard.init_state_now();
+
         // クリックされているボタンと背景色を更新
 
         History.watching_action["is_watching"] = false;
@@ -103,7 +106,7 @@ function update_d3(dataset){
         }
 
         
-        // 盤面をその状態に
+        // 盤面をその時の状態に
         SBoard.Board = deepcopy_Board(action["board_state"]);
         SBoard.draw_main_board();
         
@@ -325,6 +328,76 @@ function show_message_contents(action){
         $("#MarkAction_buttons p").text("");
     }
 }
+
+
+
+
+// メッセージを見ている時
+
+
+function show_effects(reset_color=true){
+
+    // reset_color : 最初に各マス目の色を元に戻す（以前のアクションによる着色をリセットするため）か、戻さない（マークの追加時など）か
+
+    if (reset_color){
+        $(".OneSquare").css("background-color", SBoard.default_color);
+    }
+
+    let watching_action = History.watching_action;
+
+
+    // メッセージアクションだったら、背景とマークの位置を着色
+
+    if (Object.keys(watching_action).indexOf("message") >= 0){
+
+        let message = watching_action["message"];
+
+        if (Object.keys(message).indexOf("light_up") >= 0){
+            for (let loc_light_up of message["light_up"]){
+                $("#" + loc_light_up).css("background-color", "pink");
+            }
+        }
+
+        if (Object.keys(message).indexOf("mark") >= 0){
+            for (let loc_mark of message["mark"]){
+                $("#" + loc_mark).css("background-color", "lightcyan");
+            }
+        }
+    }
+
+    else if (Object.keys(watching_action).indexOf("move") >= 0){
+        let loc = watching_action["move"][2] + watching_action["move"][3];
+        $("#" + loc).css("background-color", "brown");
+    }
+}
+
+
+$(document)
+    // .on("mouseenter", ".OneAction", function(){
+    //     let watching_action = History.watching_action;
+    //     if (Object.keys(watching_action).indexOf("message") >= 0){
+    //         let message = watching_action["message"];
+    //         if (Object.keys(message).indexOf("light_up") >= 0){
+    //             for (let loc_light_up of message["light_up"]){
+    //                 $("#" + loc_light_up).css("background-color", "pink");
+    //             }
+    //         }
+    //         if (Object.keys(message).indexOf("mark") >= 0){
+    //             for (let loc_mark of message["mark"]){
+    //                 $("#" + loc_mark).css("background-color", "lightcyan");
+    //             }
+    //         }
+    //     }
+    // })
+    // .on("mouseleave", ".OneAction", function(){
+    //     $(".OneSquare").css("background-color", SBoard.default_color);
+    // })
+    .on("click", ".OneAction", show_effects)
+
+
+
+
+// 常に監視する関数たち
 
 
 function open_or_close_sub_sc(){
