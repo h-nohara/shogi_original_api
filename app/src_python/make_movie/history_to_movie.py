@@ -41,10 +41,13 @@ def draw_boad(board, save_name, light_up_locs=False, mark_locs=False):
     # 盤面
     board_plot.plot_board()
 
+
     # マーキング
     if light_up_locs:
+        light_up_locs = [(int(loc_str[0]), int(loc_str[1])) for loc_str in light_up_locs]  # ["11", ...] -> [(1, 1), ...]
         board_plot.plot_marking(locs=light_up_locs, shape="square")
     if mark_locs:
+        mark_locs = [(int(loc_str[0]), int(loc_str[1])) for loc_str in mark_locs]  # ["11", ...] -> [(1, 1), ...]
         board_plot.plot_marking(locs=mark_locs, shape="circle")
     
     # 駒
@@ -91,13 +94,13 @@ def action_to_image(action, save_name):
         light_up_locs = False
         mark_locs = False
 
-        if "light_up_locs" in message.keys():
-            if message["light_up_locs"]:
-                light_up_locs = message["light_up_locs"]
+        if "light_up" in message.keys():
+            if message["light_up"]:
+                light_up_locs = message["light_up"]
 
-        if "mark_locs" in message.keys():
-            if message["mark_locs"]:
-                mark_locs = message["mark_locs"]
+        if "mark" in message.keys():
+            if message["mark"]:
+                mark_locs = message["mark"]
 
 
         draw_boad(board=board, light_up_locs=light_up_locs, mark_locs=mark_locs, save_name=save_name)
@@ -136,6 +139,7 @@ def history_to_images(history, recorder):
 
             action_to_image(action, save_name)
 
+        # シナリオアクションだったら
         else:
 
             board_before_branch = action["board_state"]
@@ -143,8 +147,8 @@ def history_to_images(history, recorder):
             for mini_sc in action["scenarios"]:
 
                 save_name = recorder.next(True)
-                draw_boad(board_before_branch, save_name)  # 分岐の直前
-                history_to_images(mini_sc, recorder)  # 分岐後
+                draw_boad(board_before_branch, save_name)  # 分岐の直前の状態を毎回画像に
+                history_to_images(mini_sc, recorder)  # 分岐後を順番に画像に
 
 
 def history_to_movies(history, save_dir_img, save_dir_movie):
@@ -152,12 +156,20 @@ def history_to_movies(history, save_dir_img, save_dir_movie):
     recorder = ImageNameRecorder(save_dir_img)
     history_to_images(history, recorder)
 
+    print("\n"*20)
+
     # [0, 12, 20, 最後]　のような形式
     cut_head_numbers = [0]
     for fname in recorder.cut_heads:
         number = int(os.path.basename(fname).split(".")[0].split("_")[-1])
         cut_head_numbers.append(number)
     cut_head_numbers.append(recorder.counter)
+
+
+    print("="*20)
+
+    # print(cut_head_numbers)
+    # sys.exit()
 
     chunk_imges_dir = os.path.join(save_dir_img, "temporary_chunks")
     if os.path.exists(chunk_imges_dir):
