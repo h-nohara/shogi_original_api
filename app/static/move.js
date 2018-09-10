@@ -600,7 +600,7 @@ function get_natural_moves_move(Piece, Board){
 
         // 上
         var r = row_num - 1;
-        while (c > 0){
+        while (r > 0){
             let dest = String(col_num) + String(r);
             if (can_move_to(Board, dest, is_sente) === true){
                 potential_dests.push(dest);
@@ -617,7 +617,7 @@ function get_natural_moves_move(Piece, Board){
         
         // 下
         var r = row_num + 1;
-        while (c > 0){
+        while (r < 10){
             let dest = String(col_num) + String(r);
             if (can_move_to(Board, dest, is_sente) === true){
                 potential_dests.push(dest);
